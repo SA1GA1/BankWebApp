@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { ArrowDownLeft, ArrowUpRight, ShoppingBag } from "lucide-react";
-import { api } from "../../api/client";
-import { useSession } from "../../store/session";
-import type { Transaction, User } from "../../types";
-import WalletCard from "../../components/WalletCard";
-import PromoBanner from "../../components/PromoBanner";
+import { api } from "../api/client";
+import { useSession } from "../store/session";
+import type { Transaction, User } from "../types";
 
 function txIcon(kind: Transaction["kind"]) {
   if (kind === "incoming") return ArrowDownLeft;
@@ -26,7 +24,6 @@ export default function MobileHomePage() {
         setUser({ ...user, balance: data.balance });
       })
       .catch((e) => setError(String(e)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   if (!user) return null;
@@ -36,25 +33,34 @@ export default function MobileHomePage() {
 
   return (
     <div className="mobile-page">
-      {/* Page Header - simplified for mobile */}
       <div className="mobile-page-header">
         <h1 className="mobile-page-title">Главная</h1>
       </div>
 
-      <div className="mobile-content-space-y">
-        <WalletCard
-          fullName={user.full_name}
-          accountNumber={user.account_number}
-          balance={balance}
-        />
+      {/* Wallet Card */}
+      <div className="mobile-card mobile-card-body" style={{ marginBottom: '12px' }}>
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm text-slate-500">Баланс</span>
+          <span className="text-xs text-slate-400">{user.account_number}</span>
+        </div>
+        <div className="text-3xl font-bold text-bank-dark mb-1">
+          {balance.toLocaleString("ru-RU")} ₽
+        </div>
+        <div className="text-sm text-slate-600">{user.full_name}</div>
+      </div>
 
-        <PromoBanner />
+      {/* Promo Banner */}
+      <div className="mobile-card mobile-card-body" style={{ marginBottom: '12px', background: 'linear-gradient(135deg, #1d6ff0 0%, #0b2545 100%)', color: 'white' }}>
+        <div className="text-sm font-medium mb-1">🎁 Кэшбэк 5%</div>
+        <div className="text-xs opacity-80">На покупки в категориях «Кафе» и «Транспорт»</div>
+      </div>
 
-        <section className="mobile-card">
-          <div className="mobile-card-header">
-            <h2 className="mobile-card-title">История</h2>
-            <button className="mobile-card-action">Все</button>
-          </div>
+      {/* Transactions */}
+      <div className="mobile-card">
+        <div className="mobile-card-header">
+          <span className="mobile-card-title">История</span>
+        </div>
+        <div className="mobile-card-body" style={{ padding: '0' }}>
           {error && (
             <div className="mobile-error-notice">{error}</div>
           )}
@@ -66,7 +72,7 @@ export default function MobileHomePage() {
                 <li key={tx.id} className="mobile-list-item">
                   <div
                     className={`mobile-list-icon ${
-                      positive ? "positive" : "negative"
+                      positive ? 'positive' : 'negative'
                     }`}
                   >
                     <Icon className="w-5 h-5" strokeWidth={1.75} />
@@ -82,11 +88,10 @@ export default function MobileHomePage() {
                   </div>
                   <div
                     className={`mobile-list-amount ${
-                      positive ? "positive" : "negative"
+                      positive ? 'positive' : 'negative'
                     }`}
                   >
-                    {positive ? "+" : ""}
-                    {tx.amount.toLocaleString("ru-RU")} ₽
+                    {positive ? "+" : ""}{tx.amount.toLocaleString("ru-RU")} ₽
                   </div>
                 </li>
               );
@@ -95,7 +100,7 @@ export default function MobileHomePage() {
               <li className="mobile-list-empty">Пока пусто</li>
             )}
           </ul>
-        </section>
+        </div>
       </div>
     </div>
   );
