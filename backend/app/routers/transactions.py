@@ -6,7 +6,12 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
-from app.antifraud import build_behavior_payload, check_behavior, check_merchant
+from app.antifraud import (
+    build_behavior_payload,
+    check_behavior,
+    check_merchant,
+    max_decision,
+)
 from app.db import get_conn, row_to_dict
 from app.schemas import (
     Decision,
@@ -139,14 +144,10 @@ async def create_transfer(req: TransferRequest) -> TransferResponse:
             amount=req.amount,
         )
         reasons.extend(merchant_res.reasons)
-        if merchant_res.score > final_score:
-            final_score = merchant_res.score
-            final_decision = merchant_res.decision
+        final_score = max(final_score, merchant_res.score)
+        final_decision = max_decision(final_decision, merchant_res.decision)
 
-    # decision уже отражает score, но если мы взяли merchant.score — мог сместиться. Перевычислим.
-    final_decision = _decision_from_score(final_score)
-
-    if final_decision == "biometry":
+    if final_decision == "block":
         return TransferResponse(
             status="blocked",
             score=final_score,
@@ -202,13 +203,3 @@ async def confirm_transfer(req: TransferConfirmRequest) -> TransferResponse:
         reasons=["confirmed_via_challenge"],
         transaction_id=tx_id,
     )
-
-
-def _decision_from_score(score: float):
-    if score < 3.0:
-        return "safe"
-    if score < 6.0:
-        return "review"
-    if score < 8.0:
-        return "sms"
-    return "biometry"

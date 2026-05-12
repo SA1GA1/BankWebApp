@@ -136,7 +136,7 @@ async def post_message(req: MessageCreate) -> MessagePostResponse:
 
     created_at = _iso(datetime.utcnow())
 
-    if score_res.decision == "biometry":
+    if score_res.decision == "block":
         return MessagePostResponse(
             status="blocked",
             score=score_res.score,

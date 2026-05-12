@@ -5,7 +5,7 @@ from typing import Any, Literal, Optional
 from pydantic import BaseModel, Field
 
 
-Decision = Literal["safe", "review", "sms", "biometry"]
+Decision = Literal["safe", "review", "sms", "block"]
 
 
 class Signals(BaseModel):
