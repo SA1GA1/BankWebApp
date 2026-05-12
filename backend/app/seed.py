@@ -51,7 +51,7 @@ def seed_if_empty() -> None:
                 (name, site, category, suspicious),
             )
 
-        # История на главного пользователя (id=1)
+        # История на главного пользователя (id=77001)
         tx_seed = [
             ("incoming", "ООО Ромашка", 95_000.00, "Зарплата", 25),
             ("outgoing", "Мария Петрова", -3_500.00, "Перевод другу", 24),
@@ -70,7 +70,7 @@ def seed_if_empty() -> None:
             conn.execute(
                 "INSERT INTO transactions (user_id, kind, counterparty, amount, description, created_at,"
                 " antifraud_score, antifraud_decision) VALUES (?,?,?,?,?,?,?,?)",
-                (1, kind, cp, amt, descr, _iso(now - timedelta(days=days_ago)), 0.0, "safe"),
+                (77001, kind, cp, amt, descr, _iso(now - timedelta(days=days_ago)), 0.0, "safe"),
             )
 
         # Диалог 1: безобидный (Иван ↔ Мария)
@@ -93,8 +93,8 @@ def seed_if_empty() -> None:
             (77003, 77001, "Привет, как дела?", 4),
             (77001, 77003, "Привет, всё ок!", 4),
             (
-                3,
-                1,
+                77003,
+                77001,
                 "Слушай, кстати — мне сегодня звонили из банка, сказали мой счёт под угрозой. Поосторожнее.",
                 3,
             ),
