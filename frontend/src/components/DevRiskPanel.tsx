@@ -55,16 +55,16 @@ export default function DevRiskPanel() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-4 right-4 z-40 bg-slate-900 text-white text-xs px-3 py-2 rounded-full shadow-lg hover:bg-slate-700"
+        className="fixed bottom-4 right-4 z-40 bg-bank-primary text-white text-xs px-3 py-2 rounded-full shadow-card hover:bg-bank-primary-dark transition"
         title="⌘+K"
       >
         Dev Risk Panel
       </button>
       {open && (
-        <aside className="fixed bottom-16 right-4 z-40 w-80 bg-white border border-slate-200 rounded-xl shadow-xl p-4 text-sm">
+        <aside className="fixed bottom-16 right-4 z-40 w-80 bg-white border border-bank-border rounded-2xl shadow-card p-4 text-sm">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="font-semibold">Имитация сигналов риска</h3>
-            <button className="text-slate-400 hover:text-slate-700" onClick={() => setOpen(false)}>
+            <h3 className="font-semibold text-bank-primary">Имитация сигналов риска</h3>
+            <button className="text-bank-muted hover:text-bank-primary transition" onClick={() => setOpen(false)}>
               ✕
             </button>
           </div>

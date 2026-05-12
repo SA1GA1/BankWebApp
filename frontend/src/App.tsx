@@ -4,8 +4,7 @@ import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import TransferPage from "./pages/TransferPage";
 import MessengerPage from "./pages/MessengerPage";
-import DevRiskPanel from "./components/DevRiskPanel";
-import TopBar from "./components/TopBar";
+import AppShell from "./components/AppShell";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { user } = useSession();
@@ -16,39 +15,20 @@ function RequireAuth({ children }: { children: JSX.Element }) {
 export default function App() {
   const { user } = useSession();
   return (
-    <div className="min-h-full flex flex-col">
-      {user && <TopBar />}
-      <main className="flex-1">
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/home"
-            element={
-              <RequireAuth>
-                <HomePage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/transfer"
-            element={
-              <RequireAuth>
-                <TransferPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/messenger"
-            element={
-              <RequireAuth>
-                <MessengerPage />
-              </RequireAuth>
-            }
-          />
-          <Route path="*" element={<Navigate to={user ? "/home" : "/login"} replace />} />
-        </Routes>
-      </main>
-      {user && <DevRiskPanel />}
-    </div>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route
+        element={
+          <RequireAuth>
+            <AppShell />
+          </RequireAuth>
+        }
+      >
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/transfer" element={<TransferPage />} />
+        <Route path="/messenger" element={<MessengerPage />} />
+      </Route>
+      <Route path="*" element={<Navigate to={user ? "/home" : "/login"} replace />} />
+    </Routes>
   );
 }

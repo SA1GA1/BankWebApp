@@ -1,16 +1,23 @@
 import { useEffect, useRef, useState } from "react";
+import { Send } from "lucide-react";
 import { api } from "../api/client";
 import { useSession } from "../store/session";
 import { useFingerprint } from "../hooks/useFingerprint";
 import ScoreBadge from "../components/ScoreBadge";
+import PageHeader from "../components/PageHeader";
 import type { Decision, Message, ScoreResult, Thread, User } from "../types";
 
-const BORDERS: Record<Decision, string> = {
+const PEER_BUBBLE_BORDER: Record<Decision, string> = {
   safe: "border-l-transparent",
-  review: "border-l-amber-400 bg-amber-50",
-  sms: "border-l-orange-500 bg-orange-50",
-  biometry: "border-l-red-500 bg-red-50",
+  review: "border-l-amber-400",
+  sms: "border-l-orange-500",
+  biometry: "border-l-red-500",
 };
+
+function initialsOf(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase();
+}
 
 export default function MessengerPage() {
   const { user } = useSession();
@@ -56,7 +63,8 @@ export default function MessengerPage() {
     listEnd.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const peerName = (id: number) => users.find((u) => u.id === id)?.full_name ?? `User ${id}`;
+  const peerName = (id: number) =>
+    users.find((u) => u.id === id)?.full_name ?? `User ${id}`;
 
   const send = async () => {
     if (!user || !peerId || !text.trim()) return;
@@ -70,7 +78,11 @@ export default function MessengerPage() {
         text: text.trim(),
         signals,
       });
-      setLastResult({ score: res.score, decision: res.decision, reasons: res.reasons });
+      setLastResult({
+        score: res.score,
+        decision: res.decision,
+        reasons: res.reasons,
+      });
       if (res.status === "blocked") {
         setBlockedNotice({
           score: res.score,
@@ -81,7 +93,6 @@ export default function MessengerPage() {
         setMessages((prev) => [...prev, res.message!]);
       }
       setText("");
-      // обновим список тредов
       api.threads(user.id).then(setThreads);
     } catch (e) {
       console.error(e);
@@ -93,34 +104,58 @@ export default function MessengerPage() {
   if (!user) return null;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
+    <div className="max-w-5xl mx-auto px-6 py-6 space-y-5">
+      <PageHeader title="Сообщения" />
+
       {screenScore && screenScore.decision !== "safe" && (
-        <div className="mb-3 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-sm">
-          Антифрод-система отметила вашу сессию как <b>{screenScore.decision}</b> при входе в
-          мессенджер (score {screenScore.score.toFixed(1)}).
+        <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm">
+          Антифрод-система отметила вашу сессию как{" "}
+          <b>{screenScore.decision}</b> при входе в мессенджер (score{" "}
+          {screenScore.score.toFixed(1)}).
         </div>
       )}
 
       <div className="grid grid-cols-3 gap-4 h-[70vh]">
-        <aside className="col-span-1 bg-white border border-slate-200 rounded-xl overflow-y-auto">
-          <div className="px-3 py-2 border-b text-sm font-medium">Диалоги</div>
-          <ul>
+        <aside className="col-span-1 bg-white border border-bank-border rounded-2xl overflow-y-auto shadow-card">
+          <div className="px-4 py-3 border-b border-bank-border text-sm font-semibold text-bank-primary">
+            Диалоги
+          </div>
+          <ul className="divide-y divide-bank-border">
             {users
               .filter((u) => u.id !== user.id)
               .map((u) => {
                 const thread = threads.find((t) => t.peer_id === u.id);
+                const active = peerId === u.id;
                 return (
                   <li key={u.id}>
                     <button
                       type="button"
                       onClick={() => setPeerId(u.id)}
-                      className={`w-full text-left px-3 py-2 hover:bg-slate-50 ${
-                        peerId === u.id ? "bg-slate-100" : ""
+                      className={`relative w-full text-left px-4 py-3 flex items-center gap-3 transition ${
+                        active
+                          ? "bg-bank-accent-soft"
+                          : "hover:bg-bank-bg/60"
                       }`}
                     >
-                      <div className="font-medium text-sm">{u.full_name}</div>
-                      <div className="text-xs text-slate-500 truncate">
-                        {thread?.last_text ?? "Нет сообщений"}
+                      {active && (
+                        <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-bank-accent" />
+                      )}
+                      <div
+                        className={`w-9 h-9 rounded-full grid place-items-center text-xs font-semibold shrink-0 ${
+                          active
+                            ? "bg-bank-accent text-white"
+                            : "bg-bank-bg text-bank-primary"
+                        }`}
+                      >
+                        {initialsOf(u.full_name)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium text-sm text-bank-primary truncate">
+                          {u.full_name}
+                        </div>
+                        <div className="text-xs text-bank-muted truncate">
+                          {thread?.last_text ?? "Нет сообщений"}
+                        </div>
                       </div>
                     </button>
                   </li>
@@ -129,34 +164,50 @@ export default function MessengerPage() {
           </ul>
         </aside>
 
-        <section className="col-span-2 bg-white border border-slate-200 rounded-xl flex flex-col">
+        <section className="col-span-2 bg-white border border-bank-border rounded-2xl flex flex-col shadow-card">
           {peerId === null ? (
-            <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
+            <div className="flex-1 flex items-center justify-center text-bank-muted text-sm">
               Выберите собеседника
             </div>
           ) : (
             <>
-              <div className="px-4 py-2 border-b font-medium text-sm">
-                {peerName(peerId)}
+              <div className="px-5 py-3 border-b border-bank-border flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-bank-accent text-white grid place-items-center text-xs font-semibold">
+                  {initialsOf(peerName(peerId))}
+                </div>
+                <div className="font-semibold text-bank-primary text-sm">
+                  {peerName(peerId)}
+                </div>
               </div>
-              <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-2 bg-bank-bg/40">
                 {messages.map((m) => {
                   const mine = m.sender_id === user.id;
                   const dec = (m.antifraud_decision ?? "safe") as Decision;
                   return (
-                    <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+                    <div
+                      key={m.id}
+                      className={`flex ${mine ? "justify-end" : "justify-start"}`}
+                    >
                       <div
-                        className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm border-l-4 ${
+                        className={`max-w-[72%] rounded-2xl px-4 py-2.5 text-sm border-l-4 ${
                           mine
-                            ? "bg-bank text-white border-l-transparent"
-                            : `bg-slate-100 ${BORDERS[dec]}`
+                            ? "bg-bank-accent text-white border-l-transparent rounded-br-md"
+                            : `bg-white text-slate-900 border-bank-border border ${PEER_BUBBLE_BORDER[dec]} rounded-bl-md`
                         }`}
                       >
                         <div>{m.text}</div>
-                        <div className="text-[10px] opacity-70 mt-1 flex gap-2">
-                          <span>{new Date(m.created_at).toLocaleTimeString("ru-RU")}</span>
+                        <div
+                          className={`text-[10px] mt-1 flex gap-2 ${
+                            mine ? "text-white/70" : "text-bank-muted"
+                          }`}
+                        >
+                          <span>
+                            {new Date(m.created_at).toLocaleTimeString("ru-RU")}
+                          </span>
                           {!mine && dec !== "safe" && (
-                            <span className="font-semibold">⚠ {dec}</span>
+                            <span className="font-semibold uppercase">
+                              ⚠ {dec}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -165,9 +216,9 @@ export default function MessengerPage() {
                 })}
                 <div ref={listEnd} />
               </div>
-              <div className="border-t p-3 space-y-2">
+              <div className="border-t border-bank-border p-3 space-y-2">
                 {blockedNotice && (
-                  <div className="p-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
+                  <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
                     Сообщение заблокировано антифрод-системой (score{" "}
                     {blockedNotice.score.toFixed(1)}). Причины:{" "}
                     {blockedNotice.reasons.slice(0, 3).join("; ")}
@@ -185,15 +236,16 @@ export default function MessengerPage() {
                       }
                     }}
                     placeholder="Сообщение..."
-                    className="flex-1 border rounded-lg px-3 py-2 text-sm"
+                    className="flex-1 bg-bank-bg border border-transparent focus:bg-white focus:border-bank-accent focus:ring-2 focus:ring-bank-accent/20 rounded-full px-4 py-2.5 text-sm outline-none transition"
                   />
                   <button
                     type="button"
                     onClick={send}
                     disabled={busy || !text.trim()}
-                    className="bg-bank text-white px-4 rounded-lg disabled:opacity-50 hover:bg-bank-dark"
+                    className="w-11 h-11 bg-bank-accent text-white rounded-full grid place-items-center disabled:opacity-50 hover:bg-bank-primary transition shrink-0"
+                    title="Отправить"
                   >
-                    {busy ? "..." : "Отправить"}
+                    <Send className="w-4 h-4" strokeWidth={2} />
                   </button>
                 </div>
               </div>
@@ -203,7 +255,7 @@ export default function MessengerPage() {
       </div>
 
       {lastResult && (
-        <div className="mt-4">
+        <div>
           <ScoreBadge
             score={lastResult.score}
             decision={lastResult.decision as Decision}

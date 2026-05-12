@@ -60,24 +60,42 @@ BankWebApp/
 │           ├── messages.py    # GET threads, /history, POST /api/messages
 │           └── antifraud.py   # POST /api/antifraud/screen-entry, GET /api/antifraud/log
 └── frontend/
-    ├── package.json, vite.config.ts (proxy /api → :8001), tailwind.config.js
+    ├── package.json                       # react, react-router-dom, lucide-react
+    ├── vite.config.ts                     # proxy /api → :8001
+    ├── tailwind.config.js                 # палитра bank-* + Inter в fontFamily.sans
     └── src/
-        ├── main.tsx, App.tsx              # роутинг + SessionProvider
+        ├── main.tsx, App.tsx              # роутинг с nested routes; AppShell оборачивает приватные страницы, LoginPage — снаружи
+        ├── index.css                      # @import Inter + bg-bank-bg на body
         ├── types.ts                       # User, Transaction, Merchant, Message, Signals, Decision
         ├── api/client.ts                  # fetch-обёртка, все вызовы backend
         ├── store/session.tsx              # currentUser + riskOverrides в localStorage
         ├── hooks/useFingerprint.ts        # сбор сигналов; возвращает () => Promise<Signals>
+        ├── mocks/visual.ts                # чисто визуальные моки (cashback, promo, quick-actions, recent recipients) — не пишутся в БД
         ├── components/
-        │   ├── TopBar.tsx, ScoreBadge.tsx
+        │   ├── AppShell.tsx               # flex: Sidebar + (TopBar + <Outlet/>) + DevRiskPanel
+        │   ├── Sidebar.tsx                # левая навигация: Главная / Накопления* / Платежи / Кредиты* / Сообщения (* — disabled-визуал)
+        │   ├── TopBar.tsx                 # поиск + профиль/logout справа (без nav-ссылок, они в Sidebar)
+        │   ├── PageHeader.tsx             # <h1> + eye-off/overflow-кнопки
+        │   ├── WalletCard.tsx, PromoBanner.tsx  # Главная: «Кошелёк» с 5 тайлами + промо-баннер
+        │   ├── QuickActionTile.tsx, RecipientTile.tsx  # Платежи: плитки быстрых действий и получателей
+        │   ├── ScoreBadge.tsx             # инлайн-бейдж score+decision+reasons
         │   ├── AntifraudModal.tsx         # phrase | sms | blocked
         │   ├── MerchantPicker.tsx         # search-dropdown
         │   └── DevRiskPanel.tsx           # ⌘+K, тоггл-сигналы + пресеты
         └── pages/
-            ├── LoginPage.tsx              # выбор клиента (без паролей)
-            ├── HomePage.tsx               # баланс + история
-            ├── TransferPage.tsx           # screen-entry + форма + модалка
+            ├── LoginPage.tsx              # split-layout: брендовый левый блок + список клиентов справа
+            ├── HomePage.tsx               # PageHeader + WalletCard + PromoBanner + история
+            ├── TransferPage.tsx           # screen-entry + quick-action-tiles + форма (p2p/merchant) + recipient-tiles + модалка
             └── MessengerPage.tsx          # screen-entry + диалоги + инлайн-decision
 ```
+
+### UI-конвенции
+
+- **Палитра** в `tailwind.config.js` (токены `bank-primary` `#0b2545`, `bank-accent` `#1d6ff0`, `bank-accent-soft`, `bank-bg`, `bank-border`, `bank-muted`). Не использовать сырые `#hex` или `slate-*` для брендовых элементов — только `bank-*`. Decision-цвета антифрода (emerald/amber/orange/red в `ScoreBadge` / `AntifraudModal` / Messenger bubbles) — оставляем как есть, они должны контрастировать с palette.
+- **Шрифт** — Inter (через `@import` в `index.css`), `fontFamily.sans` в Tailwind переопределён. Не подключать другие шрифты.
+- **Иконки** — `lucide-react`. Не добавлять SVG-инлайны или другие иконпаки без причины. Толщина обводки по умолчанию `strokeWidth={1.75}` для UI, `2` для контрольных элементов (кнопки-стрелки, активные состояния).
+- **Layout приватных страниц** — все три (`/home`, `/transfer`, `/messenger`) рендерятся внутри `AppShell` и используют `max-w-5xl mx-auto px-6 py-6 space-y-5`, начинаются с `<PageHeader title=... />`. `/login` — единственная страница вне шелла (full-screen split).
+- **Моки vs реальные данные** — `src/mocks/visual.ts` это чисто декоративные данные (Накопления, Кредиты, «72 DemoBonus», промо-баннер, плитки получателей с фейковыми именами). Реальные данные в карточках/истории/чате — всегда из `api/client.ts`. Не подмешивать моки в данные, которые backend читает обратно.
 
 ## SQLite
 

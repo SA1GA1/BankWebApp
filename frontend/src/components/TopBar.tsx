@@ -1,36 +1,52 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { LogOut, Search } from "lucide-react";
 import { useSession } from "../store/session";
+
+function initialsOf(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return (parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "");
+}
 
 export default function TopBar() {
   const { user, setUser } = useSession();
   const navigate = useNavigate();
   if (!user) return null;
 
-  const link = ({ isActive }: { isActive: boolean }) =>
-    `px-3 py-2 rounded-md text-sm font-medium ${
-      isActive ? "bg-bank text-white" : "text-slate-700 hover:bg-slate-200"
-    }`;
-
   return (
-    <header className="bg-white border-b border-slate-200">
-      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-4">
-        <div className="font-bold text-bank">DemoBank</div>
-        <nav className="flex gap-1 ml-4">
-          <NavLink to="/home" className={link}>Главная</NavLink>
-          <NavLink to="/transfer" className={link}>Перевод</NavLink>
-          <NavLink to="/messenger" className={link}>Сообщения</NavLink>
-        </nav>
-        <div className="ml-auto flex items-center gap-3 text-sm">
-          <span className="text-slate-700">{user.full_name}</span>
+    <header className="bg-white border-b border-bank-border sticky top-0 z-20">
+      <div className="h-16 px-6 flex items-center gap-6">
+        <div className="flex-1 max-w-2xl">
+          <label className="relative block">
+            <Search
+              className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-bank-muted"
+              strokeWidth={2}
+            />
+            <input
+              type="text"
+              placeholder="Поиск"
+              className="w-full bg-bank-bg border border-transparent focus:bg-white focus:border-bank-accent focus:ring-2 focus:ring-bank-accent/20 rounded-full pl-9 pr-4 py-2 text-sm outline-none transition"
+            />
+          </label>
+        </div>
+        <div className="ml-auto flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-full bg-bank-accent-soft text-bank-accent grid place-items-center text-sm font-semibold">
+              {initialsOf(user.full_name)}
+            </div>
+            <span className="text-sm text-slate-700 hidden sm:block">
+              {user.full_name.split(" ")[0]}
+            </span>
+          </div>
           <button
             type="button"
-            className="text-slate-500 hover:text-bank-dark"
+            className="p-2 rounded-full text-bank-muted hover:text-bank-primary hover:bg-bank-bg transition"
+            title="Выйти"
             onClick={() => {
               setUser(null);
               navigate("/login");
             }}
           >
-            Выйти
+            <LogOut className="w-5 h-5" strokeWidth={1.75} />
           </button>
         </div>
       </div>

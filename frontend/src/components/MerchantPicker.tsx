@@ -41,36 +41,36 @@ export default function MerchantPicker({ value, onChange }: Props) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full text-left border rounded-lg px-3 py-2 bg-white hover:border-bank"
+        className="w-full text-left border border-bank-border rounded-xl px-3 py-2.5 bg-bank-bg hover:bg-white hover:border-bank-accent transition"
       >
         {value ? (
           <span>
-            <span className="font-medium">{value.name}</span>
-            <span className="text-slate-500 text-sm ml-2">{value.site}</span>
+            <span className="font-medium text-bank-primary">{value.name}</span>
+            <span className="text-bank-muted text-sm ml-2">{value.site}</span>
           </span>
         ) : (
-          <span className="text-slate-500">Выбрать интернет-магазин</span>
+          <span className="text-bank-muted">Выбрать интернет-магазин</span>
         )}
       </button>
       {open && (
-        <div className="absolute z-30 mt-1 w-full bg-white border rounded-lg shadow-lg max-h-72 overflow-auto">
+        <div className="absolute z-30 mt-1 w-full bg-white border border-bank-border rounded-xl shadow-card max-h-72 overflow-auto">
           <input
             type="text"
             placeholder="Поиск магазина..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full px-3 py-2 border-b text-sm focus:outline-none"
+            className="w-full px-3 py-2 border-b border-bank-border text-sm focus:outline-none"
             autoFocus
           />
           {items.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-slate-500">Ничего не найдено</div>
+            <div className="px-3 py-2 text-sm text-bank-muted">Ничего не найдено</div>
           ) : (
             <ul>
               {items.map((m) => (
                 <li key={m.id}>
                   <button
                     type="button"
-                    className="w-full text-left px-3 py-2 hover:bg-slate-50 flex justify-between items-center"
+                    className="w-full text-left px-3 py-2 hover:bg-bank-bg flex justify-between items-center"
                     onClick={() => {
                       onChange(m);
                       setQuery(m.name);
@@ -78,15 +78,15 @@ export default function MerchantPicker({ value, onChange }: Props) {
                     }}
                   >
                     <span>
-                      <span className="font-medium">{m.name}</span>
-                      <span className="block text-xs text-slate-500">{m.site}</span>
+                      <span className="font-medium text-bank-primary">{m.name}</span>
+                      <span className="block text-xs text-bank-muted">{m.site}</span>
                     </span>
                     {m.is_known_suspicious ? (
-                      <span className="text-xs bg-red-100 text-red-700 rounded px-2 py-0.5">
+                      <span className="text-xs bg-red-100 text-red-700 rounded-full px-2 py-0.5">
                         риск
                       </span>
                     ) : (
-                      <span className="text-xs bg-emerald-100 text-emerald-700 rounded px-2 py-0.5">
+                      <span className="text-xs bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5">
                         известный
                       </span>
                     )}
