@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, ShieldCheck, User } from "lucide-react";
+import { ChevronRight, ShieldCheck } from "lucide-react";
 import { api } from "../api/client";
 import { useSession } from "../store/session";
 import type { User as UserType } from "../types";

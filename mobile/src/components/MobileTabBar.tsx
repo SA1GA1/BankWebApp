@@ -1,5 +1,5 @@
-import { Home, MessageSquare, CreditCard, User as UserIcon } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Home, MessageSquare, CreditCard } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface MobileTabBarProps {
   currentPath: string;

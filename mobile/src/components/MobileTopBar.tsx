@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { LogOut, Wifi, Battery, Signal } from "lucide-react";
+import { Wifi, Battery, Signal } from "lucide-react";
 import { useSession } from "../store/session";
-import type { User } from "../types";
 
 export default function MobileTopBar() {
   const { user } = useSession();
@@ -14,10 +13,6 @@ export default function MobileTopBar() {
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
-  };
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("ru-RU", { weekday: "short", day: "numeric", month: "long" });
   };
 
   return (

@@ -3,7 +3,7 @@ import { ArrowRight, ArrowRightLeft } from "lucide-react";
 import { api } from "../api/client";
 import { useSession } from "../store/session";
 import { useFingerprint } from "../hooks/useFingerprint";
-import type { Decision, Merchant, ScoreResult, TransferResponse } from "../types";
+import type { Merchant, ScoreResult, TransferResponse } from "../types";
 
 type Mode = "p2p" | "merchant";
 
