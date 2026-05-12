@@ -10,22 +10,22 @@
 # Dependencies
 .venv/
 venv/
-node_modules/
-
-# Compiled Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Logs
+# Logs and temp files
 *.log
+*.tmp
+*.swp
 
 # Editors
 .vscode/
 .idea/
 
-# OS
-.DS_Store
-Thumbs.db
+# Build artifacts
+dist/
+build/
+target/
 ```
